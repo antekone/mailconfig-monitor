@@ -5,9 +5,10 @@ extern crate ansi_term;
 
 mod args;
 mod alog;
+mod monitor;
 
-use serde_hjson::{Map, Value};
-use std::collections::{HashMap};
+use std::process::exit;
+use monitor::run_monitor;
 
 fn main() {
     alog::init().unwrap();
@@ -32,5 +33,12 @@ fn main() {
     }
 
     info!("Using config file: {}", pmode.config_file);
-    info!("Working.");
+
+    if pmode.monitor_mode {
+        let r = run_monitor(&pmode);
+        exit(match r { true => 0, false => 1 });
+    }
+
+    error!("No action specified.");
+    exit(1);
 }

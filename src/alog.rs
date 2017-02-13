@@ -1,11 +1,11 @@
 use log;
 use log::{LogRecord, LogLevel, LogMetadata, SetLoggerError, Log, LogLevelFilter};
-use ansi_term::Colour::{Yellow, Red, RGB, White};
+use ansi_term::Colour::{Yellow, Red, White};
 
 struct DefaultLogger;
 
 impl Log for DefaultLogger {
-    fn enabled(&self, metadata: &LogMetadata) -> bool { true }
+    fn enabled(&self, _: &LogMetadata) -> bool { true }
 
     fn log(&self, record: &LogRecord) {
         // if self.enabled() ...
