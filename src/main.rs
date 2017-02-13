@@ -6,6 +6,8 @@ extern crate ansi_term;
 mod args;
 mod alog;
 mod monitor;
+mod processes;
+mod config;
 
 use std::process::exit;
 use monitor::run_monitor;

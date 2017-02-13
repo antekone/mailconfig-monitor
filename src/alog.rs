@@ -17,7 +17,7 @@ impl Log for DefaultLogger {
             LogLevel::Trace => "trace".to_string(),
         };
 
-        println!("[{}] {}", banner, record.args());
+        println!("[{} {}+{}] {}", banner, record.location().file(), record.location().line(), record.args());
     }
 }
 
