@@ -1,4 +1,4 @@
-//extern crate serde_hjson;
+extern crate serde_hjson;
 extern crate argparse;
 extern crate ansi_term;
 #[macro_use] extern crate log;

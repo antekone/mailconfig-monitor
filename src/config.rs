@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_variables, unused_attributes, unused_mut)]
 
-//use serde_hjson::{Map, Value};
+use serde_hjson::{Map, Value};
 use std::io::{BufReader, BufRead};
 use std::fs::File;
 use std::error::Error;
@@ -8,8 +8,14 @@ use std::io;
 use serde_hjson;
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct GlobalEntry {
+    key: String,
+    value: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Configuration {
-    globals: Option<Vec<Map<String, Value>>>,
+    globals: Option<Vec<GlobalEntry>>,
 }
 
 fn create_reader(file_name: &String) -> io::Result<BufReader<File>> {
