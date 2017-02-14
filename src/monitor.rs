@@ -1,7 +1,10 @@
-use args::ProgramMode;
-use processes::{get_process_list, has_process_pid};
+#![allow(unused_variables, dead_code)]
 
-pub fn run_monitor(_: &ProgramMode) -> bool {
+use args::ProgramMode;
+use config::Configuration;
+use processes::{get_process_list};
+
+pub fn run_monitor(_: &ProgramMode, config: &Configuration) -> bool {
     trace!("running monitor...");
     let procs = get_process_list();
 

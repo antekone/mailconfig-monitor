@@ -1,7 +1,8 @@
-extern crate serde_hjson;
+//extern crate serde_hjson;
 extern crate argparse;
 extern crate ansi_term;
 #[macro_use] extern crate log;
+#[macro_use] extern crate serde_derive;
 
 mod args;
 mod alog;
@@ -11,6 +12,7 @@ mod config;
 
 use std::process::exit;
 use monitor::run_monitor;
+use config::{load_config};
 
 fn main() {
     alog::init().unwrap();
@@ -36,8 +38,17 @@ fn main() {
 
     info!("Using config file: {}", pmode.config_file);
 
+    let config = match load_config(&pmode.config_file) {
+        Ok(x) => x,
+        Err(e) => {
+            error!("Can't parse config file: {}", pmode.config_file);
+            error!("Error was: {}", e);
+            exit(1);
+        }
+    };
+
     if pmode.monitor_mode {
-        let r = run_monitor(&pmode);
+        let r = run_monitor(&pmode, &config);
         exit(match r { true => 0, false => 1 });
     }
 
