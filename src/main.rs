@@ -1,8 +1,10 @@
-extern crate serde_hjson;
+#![feature(plugin)]
+
 extern crate argparse;
 extern crate ansi_term;
 #[macro_use] extern crate log;
 #[macro_use] extern crate serde_derive;
+extern crate serde_hjson;
 
 mod args;
 mod alog;
@@ -46,6 +48,8 @@ fn main() {
             exit(1);
         }
     };
+
+    config.dump();
 
     if pmode.monitor_mode {
         let r = run_monitor(&pmode, &config);
