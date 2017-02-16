@@ -49,11 +49,15 @@ fn main() {
         }
     };
 
-    config.dump();
-
     if pmode.monitor_mode {
-        let r = run_monitor(&pmode, &config);
-        exit(match r { true => 0, false => 1 });
+        match run_monitor(&pmode, &config) {
+            Ok(_) =>
+                exit(0),
+            Err(string) => {
+                error!("Monitor run failed, error: {}", string);
+                exit(1);
+            }
+        }
     }
 
     error!("No action specified.");

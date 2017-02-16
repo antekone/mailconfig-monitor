@@ -4,13 +4,22 @@ use args::ProgramMode;
 use config::Configuration;
 use processes::{get_process_list};
 
-pub fn run_monitor(_: &ProgramMode, config: &Configuration) -> bool {
+fn ok() -> Result<(), String> { Ok(()) }
+
+pub fn run_monitor(_: &ProgramMode, config: &Configuration) -> Result<(), String> {
     trace!("running monitor...");
     let procs = get_process_list();
 
-    for process in &procs {
-        println!("proc: {}", process.proc_dir());
+    for (account_name, account_settings) in &config.accounts {
+        let pidfile = match account_settings.settings.get("pidfile") {
+            Some(x) =>
+                x,
+            None =>
+                return Err(format!("No 'pidfile' setting in account '{}'", account_name))
+        };
+
+        info!("account {}, checking pidfile: {}", account_name, pidfile);
     }
 
-    false
+    ok()
 }

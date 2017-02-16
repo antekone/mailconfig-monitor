@@ -9,22 +9,22 @@ use serde_hjson;
 use serde_derive;
 
 pub struct Server {
-    settings: Map<String, String>,
+    pub settings: Map<String, String>,
 }
 
 pub struct OptionSet {
-    settings: Map<String, String>,
+    pub settings: Map<String, String>,
 }
 
 pub struct Account {
-    settings: Map<String, String>,
+    pub settings: Map<String, String>,
 }
 
 pub struct Configuration {
-    globals: Map<String, String>,
-    servers: Map<String, Server>,
-    optionsets: Map<String, OptionSet>,
-    accounts: Map<String, Account>,
+    pub globals: Map<String, String>,
+    pub servers: Map<String, Server>,
+    pub optionsets: Map<String, OptionSet>,
+    pub accounts: Map<String, Account>,
 }
 
 impl Configuration {
@@ -108,7 +108,7 @@ pub fn load_config(file_name: &String) -> Result<Configuration, String> {
                 iter_over(&account_obj, account_name, |setting_name, setting_value| {
                     if setting_name == "templates" {
                         match setting_value.as_array() {
-                            Some(x) => process_templates(&mut settings, &x, &config)?,
+                            Some(x) => process_templates(account_name, &mut settings, &x, &config)?,
                             None =>    return Err(format!("setting '{}' is not an array", setting_name)),
                         }
                     } else {
@@ -131,10 +131,10 @@ pub fn load_config(file_name: &String) -> Result<Configuration, String> {
     Ok(config)
 }
 
-fn process_templates(settings: &mut Map<String, String>, template_array: &Vec<Value>, config: &Configuration) -> Result<(), String> {
+fn process_templates(account_name: &str, settings: &mut Map<String, String>, template_array: &Vec<Value>, config: &Configuration) -> Result<(), String> {
     for ref value in template_array {
         match value.as_str() {
-            Some(template_name) => process_template(template_name, settings, config)?,
+            Some(template_name) => process_template(account_name, template_name, settings, config)?,
             None => return Err("expecting string in template".to_string()),
         };
     }
@@ -142,14 +142,15 @@ fn process_templates(settings: &mut Map<String, String>, template_array: &Vec<Va
     Ok(())
 }
 
-fn process_template(name: &str, settings: &mut Map<String, String>, config: &Configuration) -> Result<(), String> {
+fn process_template(account_name: &str, name: &str, settings: &mut Map<String, String>, config: &Configuration) -> Result<(), String> {
     let optionset = match config.get_optionset_by_name(name) {
         Some(x) => x,
         None => return Err(format!("Referenced optionset '{}', but it hasn't been defined", name)),
     };
 
     for (key, value) in &optionset.settings {
-        settings.insert(key.clone(), value.clone());
+        let newstr = process_value(account_name, name, &value.clone());
+        settings.insert(key.clone(), newstr);
     }
 
     Ok(())
@@ -186,4 +187,12 @@ fn iter_over<F>(dict: &Value, section_name: &str, mut create_object: F) -> Resul
     }
 
     Ok(())
+}
+
+fn process_value(account_name: &str, template_name: &str, input: &String) -> String {
+    let naccount_name = account_name
+        .replace("@", "_")
+        .replace(".", "_");
+
+    input.replace("${AccountNameId}", naccount_name.as_str())
 }
