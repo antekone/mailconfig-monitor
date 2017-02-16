@@ -1,5 +1,3 @@
-#![feature(plugin)]
-
 extern crate argparse;
 extern crate ansi_term;
 #[macro_use] extern crate log;
