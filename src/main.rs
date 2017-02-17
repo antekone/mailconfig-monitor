@@ -36,8 +36,6 @@ fn main() {
         return;
     }
 
-    info!("Using config file: {}", pmode.config_file);
-
     let config = match load_config(&pmode.config_file) {
         Ok(x) => x,
         Err(e) => {
