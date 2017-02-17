@@ -5,19 +5,27 @@ use ansi_term::Colour::{Yellow, Red, White};
 struct DefaultLogger;
 
 impl Log for DefaultLogger {
-    fn enabled(&self, _: &LogMetadata) -> bool { true }
+    fn enabled(&self, m: &LogMetadata) -> bool {
+        let target = &m.target();
+        if target.starts_with("hyper::") {
+            return false;
+        }
+
+        true
+    }
 
     fn log(&self, record: &LogRecord) {
-        // if self.enabled() ...
-        let banner = match record.level() {
-            LogLevel::Error => format!("{}", Red.paint("error")),
-            LogLevel::Warn  => format!("{}", Yellow.paint("warn")),
-            LogLevel::Info  => format!("{}", White.paint("info")),
-            LogLevel::Debug => "debug".to_string(),
-            LogLevel::Trace => "trace".to_string(),
-        };
+        if self.enabled(record.metadata()) {
+            let banner = match record.level() {
+                LogLevel::Error => format!("{}", Red.paint("error")),
+                LogLevel::Warn  => format!("{}", Yellow.paint("warn")),
+                LogLevel::Info  => format!("{}", White.paint("info")),
+                LogLevel::Debug => "debug".to_string(),
+                LogLevel::Trace => "trace".to_string(),
+            };
 
-        println!("[{} {}+{}] {}", banner, record.location().file(), record.location().line(), record.args());
+            println!("[{} ({}) {}+{}] {}", banner, record.metadata().target(), record.location().file(), record.location().line(), record.args());
+        }
     }
 }
 

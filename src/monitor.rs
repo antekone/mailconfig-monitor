@@ -7,10 +7,9 @@ use std::io::{BufReader, BufRead};
 use std::io;
 use std::fs::File;
 
-fn ok() -> Result<(), String> { Ok(()) }
-
-pub fn run_monitor(_: &ProgramMode, config: &Configuration) -> Result<(), String> {
+pub fn run_monitor(_: &ProgramMode, config: &Configuration) -> Result<usize, String> {
     let procs = get_process_list();
+    let mut number_of_errors = 0usize;
 
     for (account_name, account_settings) in &config.accounts {
         let pidfile = match account_settings.settings.get("pidfile") {
@@ -29,10 +28,11 @@ pub fn run_monitor(_: &ProgramMode, config: &Configuration) -> Result<(), String
 
         if !has_process_pid(&procs, pid) {
             error!("missing process, pid {}, account {}", pid, account_name);
+            number_of_errors += 1;
         }
     }
 
-    ok()
+    Ok(number_of_errors)
 }
 
 fn create_reader(file_name: &String) -> io::Result<BufReader<File>> {
@@ -53,7 +53,7 @@ fn get_pid_from_pidfile(pidfile: &String) -> Result<i32, String> {
         Ok(pidstr) =>
             pidstr,
         Err(e) =>
-            return Err(format!("Config loading failed: {}", e))
+            return Err(format!("I/O error while reading pid from pidfile {}, error description: {}", pidfile, e))
     };
 
     match pid_str.trim().parse::<i32>() {
